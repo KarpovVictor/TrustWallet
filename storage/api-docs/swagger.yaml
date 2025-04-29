@@ -1,0 +1,1429 @@
+openapi: 3.0.0
+info:
+  title: Crypto Wallet API
+  description: API для криптовалютного кошелька
+  version: 1.0.0
+servers:
+  - url: 'https://trustwallet.qissseee.tech/api'
+    description: API Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Ошибка при выполнении операции"
+        errors:
+          type: object
+    
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+        message:
+          type: string
+    
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        seed_phrase_sent:
+          type: boolean
+        is_approved:
+          type: boolean
+        theme:
+          type: string
+          enum: [light, dark]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    Wallet:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    Crypto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        symbol:
+          type: string
+          example: "BTC"
+        name:
+          type: string
+          example: "Bitcoin"
+        full_name:
+          type: string
+          example: "Bitcoin"
+        network_name:
+          type: string
+          example: "Bitcoin Network"
+        icon:
+          type: string
+        network_icon:
+          type: string
+        is_active:
+          type: boolean
+        address:
+          type: string
+        qr_code:
+          type: string
+        price:
+          type: number
+          format: float
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    
+    WalletCrypto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        wallet_id:
+          type: integer
+          format: int64
+        crypto_id:
+          type: integer
+          format: int64
+        balance:
+          type: number
+          format: decimal
+        address:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        crypto:
+          $ref: '#/components/schemas/Crypto'
+        formatted_balance:
+          type: string
+          example: "0.12345678 BTC"
+        balance_usd:
+          type: number
+          format: decimal
+          example: 6000.25
+        formatted_balance_usd:
+          type: string
+          example: "$6,000.25"
+    
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+        crypto_id:
+          type: integer
+          format: int64
+        transaction_type:
+          type: string
+          enum: [deposit, withdrawal, staking, unstaking, exchange_in, exchange_out]
+        amount:
+          type: number
+          format: decimal
+        tx_hash:
+          type: string
+        address_from:
+          type: string
+        address_to:
+          type: string
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        notes:
+          type: string
+        details:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        crypto:
+          $ref: '#/components/schemas/Crypto'
+        formatted_date:
+          type: string
+          example: "01.01.2023 12:30"
+        icon_class:
+          type: string
+          example: "text-green-500"
+        type_text:
+          type: string
+          example: "Пополнение"
+        status_text:
+          type: string
+          example: "Выполнено"
+    
+    Stake:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+        crypto_id:
+          type: integer
+          format: int64
+        wallet_id:
+          type: integer
+          format: int64
+        amount:
+          type: number
+          format: decimal
+        apr:
+          type: number
+          format: decimal
+        lock_time_days:
+          type: integer
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        profit:
+          type: number
+          format: decimal
+        is_active:
+          type: boolean
+        last_profit_calculation:
+          type: string
+          format: date-time
+        profit_snapshot:
+          type: object
+          properties:
+            daily_profits:
+              type: object
+            total_profit:
+              type: number
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        crypto:
+          $ref: '#/components/schemas/Crypto'
+    
+    StakingSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+          nullable: true
+        crypto_id:
+          type: integer
+          format: int64
+        min_stake_amount:
+          type: number
+          format: decimal
+        apr:
+          type: number
+          format: decimal
+        lock_time_days:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        crypto:
+          $ref: '#/components/schemas/Crypto'
+    
+    SupportTicket:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+        ticket_number:
+          type: string
+          example: "TICKET-A1B2C3"
+        subject:
+          type: string
+        status:
+          type: string
+          enum: [open, closed]
+        priority:
+          type: string
+          enum: [low, medium, high]
+        last_reply_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        formatted_created_at:
+          type: string
+          example: "01.01.2023 12:30"
+        formatted_last_reply_at:
+          type: string
+          example: "01.01.2023 12:35"
+    
+    SupportMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        ticket_id:
+          type: integer
+          format: int64
+        user_id:
+          type: integer
+          format: int64
+          nullable: true
+        message:
+          type: string
+        is_from_admin:
+          type: boolean
+        is_read:
+          type: boolean
+        attachment:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        formatted_created_at:
+          type: string
+          example: "01.01.2023 12:30"
+        time:
+          type: string
+          example: "12:30"
+    
+    SeedPhrase:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        is_used:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+tags:
+  - name: Auth
+    description: Аутентификация и управление пользователями
+  - name: Wallet
+    description: Управление кошельками и операции с криптовалютой
+  - name: Wallet Profiles
+    description: Управление профилями кошельков
+  - name: Exchange
+    description: Обмен криптовалют
+  - name: Staking
+    description: Стейкинг криптовалют
+  - name: Support
+    description: Служба поддержки пользователей
+
+paths:
+  /auth/create-wallet:
+    post:
+      tags:
+        - Auth
+      summary: Создать новый кошелек
+      description: Создает нового пользователя и кошелек с сид-фразой
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+                - password_confirmation
+                - seed_words
+              properties:
+                password:
+                  type: string
+                  example: password123
+                password_confirmation:
+                  type: string
+                  example: password123
+                seed_words:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Кошелек успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/import-wallet:
+    post:
+      tags:
+        - Auth
+      summary: Импортировать существующий кошелек
+      description: Импортирует существующий кошелек с помощью сид-фразы
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+                - password_confirmation
+                - seed_words
+              properties:
+                password:
+                  type: string
+                  example: password123
+                password_confirmation:
+                  type: string
+                  example: password123
+                seed_words:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Кошелек успешно импортирован
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+                  approval_required:
+                    type: boolean
+                    example: false
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Выйти из системы
+      description: Выход из системы и удаление токена
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Успешный выход
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Вы успешно вышли из системы
+  
+  /check-approval-status:
+    get:
+      tags:
+        - Auth
+      summary: Проверить статус одобрения аккаунта
+      description: Проверяет, был ли аккаунт одобрен администратором
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Статус одобрения
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  status:
+                    type: string
+                    example: approved
+  
+  /wallet/dashboard:
+    get:
+      tags:
+        - Wallet
+      summary: Получить данные для дашборда
+      description: Получает информацию о балансах кошелька
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Данные дашборда
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      wallet:
+                        $ref: '#/components/schemas/Wallet'
+                      cryptos:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/WalletCrypto'
+                      total_balance:
+                        type: number
+                        example: 1250.50
+        '404':
+          description: Кошелек по умолчанию не найден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Default wallet not found
+  
+  /wallet/crypto/send-list:
+    get:
+      tags:
+        - Wallet
+      summary: Получить список криптовалют для отправки
+      description: Получает список криптовалют с положительным балансом для отправки
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список криптовалют
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WalletCrypto'
+  
+  /wallet/crypto/receive-list:
+    get:
+      tags:
+        - Wallet
+      summary: Получить список криптовалют для получения
+      description: Получает список криптовалют, которые можно получить
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список криптовалют
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WalletCrypto'
+  
+  /wallet/crypto/send/{symbol}:
+    get:
+      tags:
+        - Wallet
+      summary: Получить данные для отправки определенной криптовалюты
+      description: Получает информацию, необходимую для отправки криптовалюты
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Символ криптовалюты
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные для отправки
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      crypto:
+                        $ref: '#/components/schemas/Crypto'
+                      wallet_crypto:
+                        $ref: '#/components/schemas/WalletCrypto'
+    post:
+      tags:
+        - Wallet
+      summary: Отправить криптовалюту
+      description: Отправляет указанную сумму криптовалюты на указанный адрес
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Символ криптовалюты
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - address
+                - amount
+                - password
+              properties:
+                address:
+                  type: string
+                  example: 0x1234567890abcdef
+                amount:
+                  type: number
+                  example: 0.01
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Транзакция успешно отправлена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Transaction'
+                  message:
+                    type: string
+                    example: Транзакция успешно отправлена
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /wallet/crypto/receive/{symbol}:
+    get:
+      tags:
+        - Wallet
+      summary: Получить адрес для пополнения криптовалюты
+      description: Получает адрес для пополнения указанной криптовалюты
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Символ криптовалюты
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные для получения
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      crypto:
+                        $ref: '#/components/schemas/Crypto'
+                      wallet_crypto:
+                        $ref: '#/components/schemas/WalletCrypto'
+        '404':
+          description: Адрес или QR-код отсутствует
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Для данной криптовалюты отсутствует адрес или QR-код
+  
+  /wallet/history:
+    get:
+      tags:
+        - Wallet
+      summary: Получить историю транзакций
+      description: Получает историю всех транзакций пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: История транзакций
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+  
+  /wallet/settings:
+    get:
+      tags:
+        - Wallet
+      summary: Получить настройки пользователя
+      description: Получает текущие настройки пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Настройки пользователя
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      theme:
+                        type: string
+                        example: dark
+  
+  /wallet/settings/theme:
+    post:
+      tags:
+        - Wallet
+      summary: Обновить тему пользователя
+      description: Обновляет тему интерфейса пользователя
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - theme
+              properties:
+                theme:
+                  type: string
+                  enum:
+                    - light
+                    - dark
+                  example: dark
+      responses:
+        '200':
+          description: Тема успешно обновлена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      theme:
+                        type: string
+                        example: dark
+                  message:
+                    type: string
+                    example: Тема успешно изменена
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /wallet/exchange:
+    get:
+      tags:
+        - Exchange
+      summary: Получить данные для обмена криптовалют
+      description: Получает список криптовалют для обмена
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Данные для обмена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      wallet_cryptos:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/WalletCrypto'
+                      available_cryptos:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Crypto'
+    post:
+      tags:
+        - Exchange
+      summary: Выполнить обмен криптовалют
+      description: Выполняет обмен одной криптовалюты на другую
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - from_crypto_id
+                - to_crypto_id
+                - amount
+              properties:
+                from_crypto_id:
+                  type: integer
+                  example: 1
+                to_crypto_id:
+                  type: integer
+                  example: 2
+                amount:
+                  type: number
+                  example: 0.1
+      responses:
+        '200':
+          description: Обмен успешно выполнен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      from_transaction:
+                        $ref: '#/components/schemas/Transaction'
+                      to_transaction:
+                        $ref: '#/components/schemas/Transaction'
+                      from_amount:
+                        type: number
+                        example: 0.1
+                      received_amount:
+                        type: number
+                        example: 0.005
+                      from_crypto:
+                        type: string
+                        example: BTC
+                      to_crypto:
+                        type: string
+                        example: ETH
+                  message:
+                    type: string
+                    example: Обмен валют выполнен успешно
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /wallet/profiles:
+    get:
+      tags:
+        - Wallet Profiles
+      summary: Получить список профилей кошельков
+      description: Получает все профили кошельков пользователя
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список профилей
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Wallet'
+    post:
+      tags:
+        - Wallet Profiles
+      summary: Создать новый профиль кошелька
+      description: Создает новый профиль кошелька или импортирует существующий
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - password
+                - method
+              properties:
+                name:
+                  type: string
+                  example: Second Wallet
+                password:
+                  type: string
+                method:
+                  type: string
+                  enum:
+                    - create
+                    - import
+                  example: create
+                seed_words:
+                  type: string
+                  example: word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12
+      responses:
+        '200':
+          description: Профиль успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Wallet'
+                  message:
+                    type: string
+                    example: Кошелек успешно создан/импортирован
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /wallet/profiles/{id}/set-default:
+    post:
+      tags:
+        - Wallet Profiles
+      summary: Установить профиль кошелька по умолчанию
+      description: Устанавливает указанный профиль кошелька как используемый по умолчанию
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID профиля кошелька
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Профиль успешно установлен по умолчанию
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Wallet'
+                  message:
+                    type: string
+                    example: Кошелек установлен по умолчанию
+        '403':
+          description: Недостаточно прав
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Недостаточно прав
+  
+  /staking:
+    get:
+      tags:
+        - Staking
+      summary: Получить список криптовалют для стейкинга
+      description: Получает список всех криптовалют, доступных для стейкинга
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список криптовалют для стейкинга
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Crypto'
+  
+  /staking/{symbol}:
+    get:
+      tags:
+        - Staking
+      summary: Получить информацию о стейкинге для криптовалюты
+      description: Получает подробную информацию о стейкинге для указанной криптовалюты
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Символ криптовалюты
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Данные о стейкинге
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      crypto:
+                        $ref: '#/components/schemas/Crypto'
+                      wallet_crypto:
+                        $ref: '#/components/schemas/WalletCrypto'
+                      staking_setting:
+                        $ref: '#/components/schemas/StakingSetting'
+                      active_stake:
+                        $ref: '#/components/schemas/Stake'
+  
+  /staking/{symbol}/stake:
+    post:
+      tags:
+        - Staking
+      summary: Отправить криптовалюту в стейкинг
+      description: Отправляет указанную сумму криптовалюты в стейкинг
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Символ криптовалюты
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: number
+                  example: 0.5
+      responses:
+        '200':
+          description: Стейкинг успешно выполнен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Stake'
+                  message:
+                    type: string
+                    example: Стейкинг успешно выполнен
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+  
+  /staking/unstake/{id}:
+    post:
+      tags:
+        - Staking
+      summary: Вывести криптовалюту из стейкинга
+      description: Выводит указанную криптовалюту из стейкинга
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID стейка
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Средства успешно выведены из стейкинга
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      amount:
+                        type: number
+                        format: decimal
+                        example: 0.5
+                  message:
+                    type: string
+                    example: Средства успешно выведены из стейкинга
+        '422':
+          description: Нельзя вывести средства
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Нельзя вывести средства до окончания периода блокировки
+  
+  /support/chat:
+    get:
+      tags:
+        - Support
+      summary: Получить данные чата поддержки
+      description: Получает активный тикет поддержки и сообщения
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Данные чата поддержки
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      ticket:
+                        $ref: '#/components/schemas/SupportTicket'
+                      messages:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SupportMessage'
+  
+  /support/message:
+    post:
+      tags:
+        - Support
+      summary: Отправить сообщение в поддержку
+      description: Отправляет сообщение в службу поддержки
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+                - ticket_id
+              properties:
+                message:
+                  type: string
+                  example: У меня проблема с выводом средств
+                ticket_id:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Сообщение успешно отправлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/SupportMessage'
+        '422':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /support/ticket/{id}/messages:
+    get:
+      tags:
+        - Support
+      summary: Получить сообщения тикета
+      description: Получает все сообщения указанного тикета
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID тикета
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Сообщения тикета
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SupportMessage'
+  
+  /support/ticket/{id}/close:
+    post:
+      tags:
+        - Support
+      summary: Закрыть тикет поддержки
+      description: Закрывает указанный тикет поддержки
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID тикета
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Тикет успешно закрыт
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Ваше обращение было закрыто.
+  
+  /telegram/webhook:
+    post:
+      tags:
+        - Support
+      summary: Вебхук для получения сообщений от администраторов через Telegram
+      description: Обрабатывает входящие сообщения от администраторов через Telegram
+      requestBody:
+        description: Данные от Telegram API
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Успешная обработка
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        '401':
+          description: Неавторизованный доступ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Unauthorized

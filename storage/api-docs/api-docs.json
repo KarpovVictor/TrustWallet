@@ -1,0 +1,75 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Crypto Wallet API",
+        "description": "API для криптовалютного кошелька",
+        "contact": {
+            "name": "API Support",
+            "email": "info@cryptowallet.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/telegram/webhook": {
+            "post": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Вебхук для получения сообщений от администраторов через Telegram",
+                "description": "Обрабатывает входящие сообщения от администраторов через Telegram",
+                "operationId": "783cf407c3d834b959b9b9cbf45b3db3",
+                "requestBody": {
+                    "description": "Данные от Telegram API",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успешная обработка",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Неавторизованный доступ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Support",
+            "description": "Support"
+        }
+    ]
+}
