@@ -86,7 +86,6 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'password' => 'required|min:8|confirmed',
-            'email' => 'required|email|unique:users',
             'seed_words' => 'required|array',
             'seed_words.*' => 'required|string'
         ]);
@@ -104,7 +103,6 @@ class AuthController extends Controller
             DB::beginTransaction();
             
             $user = User::create([
-                'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'theme' => 'dark',
                 'is_approved' => true,
@@ -156,7 +154,6 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'password' => 'required|min:8|confirmed',
-            'email' => 'required|email|unique:users',
             'seed_words' => 'required|array|min:12',
             'seed_words.*' => 'required|string'
         ]);
@@ -217,7 +214,6 @@ class AuthController extends Controller
             }
             
             $user = User::create([
-                'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'theme' => 'dark',
                 'is_approved' => false
