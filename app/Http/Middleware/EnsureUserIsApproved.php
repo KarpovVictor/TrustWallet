@@ -25,6 +25,10 @@ class EnsureUserIsApproved
         }
         
         if (!auth()->user()->is_approved && !auth()->user()->hasRole('admin') && !$request->routeIs('')) {
+            if($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'User is not approved'], 403);
+            }
+            
             return redirect()->route('waiting.approval');
         }
 

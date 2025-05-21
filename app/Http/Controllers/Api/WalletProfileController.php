@@ -61,13 +61,12 @@ class WalletProfileController extends Controller
                 }
             }
 
+            $encryptedSeedPhrase = $seedPhrase;
+
             $wallet = Wallet::create([
                 'user_id' => Auth::id(),
                 'name' => $request->name,
-                'encrypted_seed_phrase' => $this->cryptoService->encryptSeedPhrase(
-                    $seedPhrase, 
-                    Auth::user()->password
-                ),
+                'encrypted_seed_phrase' => $encryptedSeedPhrase,
                 'is_default' => !Auth::user()->wallets()->exists(),
                 'is_approved' => true
             ]);
