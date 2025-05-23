@@ -61,7 +61,14 @@ class WalletController extends Controller
         $crypto = Crypto::where('symbol', $symbol)->firstOrFail();
         $walletCrypto = WalletCrypto::where('wallet_id', $wallet->id)
             ->where('crypto_id', $crypto->id)
-            ->firstOrFail();
+            ->first();
+
+        if($crypto?->qr_code) {
+            $crypto->qr_code = '/storage/'.$crypto->qr_code;
+        }
+        if($walletCrypto?->crypto?->qr_code) {
+            $walletCrypto->crypto->qr_code = '/storage/'.$walletCrypto->crypto->qr_code;
+        }
             
         return response()->json([
             'success' => true,
