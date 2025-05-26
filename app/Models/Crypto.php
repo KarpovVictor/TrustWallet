@@ -18,6 +18,28 @@ class Crypto extends Model
         'is_active' => 'boolean'
     ];
 
+    public function getIconAttribute($value)
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        if (strpos($value, 'cryptoicons') !== false) {
+            return '/storage/' . $value;
+        }
+
+        return $value;
+    }
+
+    public function getNetworkIconAttribute($value)
+    {
+        if(!$value) {
+            return $value;
+        }
+
+        return '/storage/'.$value;
+    }
+
     public function walletCryptos()
     {
         return $this->hasMany(WalletCrypto::class);

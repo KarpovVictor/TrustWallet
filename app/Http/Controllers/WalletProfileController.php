@@ -40,7 +40,11 @@ class WalletProfileController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            $firstError = $validator->errors()->first();
+            return response()->json([
+                'success' => false,
+                'message' => $firstError
+            ]);
         }
 
         try {
