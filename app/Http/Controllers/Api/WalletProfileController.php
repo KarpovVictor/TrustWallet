@@ -62,6 +62,10 @@ class WalletProfileController extends Controller
             }
 
             $encryptedSeedPhrase = $seedPhrase;
+            
+            if(is_array($encryptedSeedPhrase)) {
+                $encryptedSeedPhrase = implode(" ", $encryptedSeedPhrase);
+            }
 
             $wallet = Wallet::create([
                 'user_id' => Auth::id(),

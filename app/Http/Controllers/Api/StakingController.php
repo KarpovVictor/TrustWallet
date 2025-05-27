@@ -65,7 +65,7 @@ class StakingController extends Controller
         if (!$stakingSetting) {
             $stakingSetting = StakingSetting::where('user_id', null)
                 ->where('crypto_id', $crypto->id)
-                ->firstOrFail();
+                ->first();
         }
         
         $activeStake = Stake::where('user_id', $user->id)

@@ -14,9 +14,18 @@ class Crypto extends Model
         'is_active', 'address', 'qr_code', 'price'
     ];
 
+    protected $appends = [
+        'apr',
+    ];
+
     protected $casts = [
         'is_active' => 'boolean'
     ];
+
+    public function getAprAttribute()
+    {
+        return (float) $this->stakingSettings()?->first()?->apr ?? null;
+    }
 
     public function getIconAttribute($value)
     {
