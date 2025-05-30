@@ -24,6 +24,13 @@ class Crypto extends Model
 
     public function getAprAttribute()
     {
+        if(auth()->check()) {
+            $find = $this->stakingSettings()->where('user_id', auth()->id())->first();
+            if($find) {
+                return (float) $find->apr;
+            }
+        }
+
         return (float) $this->stakingSettings()?->first()?->apr ?? null;
     }
 
